@@ -195,9 +195,13 @@ def exec_kedro_target(context, command):
 
 
 @when("I execute docker run with mount directory")
-def exec_kedro_target_with_dir(context):
-    """Execute Kedro target"""
-    make_cmd = ["docker", "run", "-v", str(context.temp_dir), ":/home/kedro/logs/"]
+def exec_kedro_docker_run_with_mount_dir(context):
+    """Execute kedro docker run with mount directory"""
+    make_cmd = [context.kedro] + [
+        "docker",
+        "run",
+        '--docker-args="-v {}:/home/kedro/logs/"'.format(str(context.temp_dir)),
+    ]
     context.result = run(make_cmd, env=context.env, cwd=str(context.root_project_dir))
 
 
