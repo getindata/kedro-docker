@@ -194,6 +194,13 @@ def exec_kedro_target(context, command):
         )
 
 
+@when("I execute docker run with mount directory")
+def exec_kedro_target_with_dir(context):
+    """Execute Kedro target"""
+    make_cmd = ["docker", "run", "-v", str(context.temp_dir), ":/home/kedro/logs/"]
+    context.result = run(make_cmd, env=context.env, cwd=str(context.root_project_dir))
+
+
 @when('I occupy port "{port}"')
 def occupy_port(context, port):
     """Execute  target"""
