@@ -32,6 +32,7 @@ Feature: Docker commands in new projects
   Background:
     Given I have prepared a config file
     And I run a non-interactive kedro new
+    And I have fixed logs write permission
     And I have executed the kedro command "install"
 
   Scenario: Execute docker build target
@@ -108,7 +109,7 @@ Feature: Docker commands in new projects
     When I execute the kedro command "docker ipython"
     Then I should see messages from docker ipython startup including "An enhanced Interactive Python"
     And  I should see messages from docker ipython startup including "INFO - ** Kedro project project-dummy"
-    And  I should see messages from docker ipython startup including "INFO - Defined global variable context"
+    And  I should see messages from docker ipython startup including "INFO - Defined global variable `context` and `catalog`"
 
   Scenario: Execute docker run target without building image
     Given I have removed old docker image of test project
