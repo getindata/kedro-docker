@@ -195,7 +195,7 @@ def exec_kedro_target(context, command):
 
 
 @when("I execute docker run with mount directory")
-def exec_kedro_docker_run_with_mount_dir(context):
+def exec_kedro_docker_run(context):
     """Execute kedro docker run with mount directory"""
     make_cmd = [context.kedro] + [
         "docker",
