@@ -32,7 +32,7 @@ Feature: Docker commands in new projects
   Background:
     Given I have prepared a config file
     And I run a non-interactive kedro new
-    And I have fixed write permission
+    And I have fixed logs write permission
     And I have executed the kedro command "install"
 
   Scenario: Execute docker build target

@@ -150,9 +150,12 @@ def create_configuration_file(context):
         yaml.dump(config, config_file, default_flow_style=False)
 
 
-@given("I have fixed write permission")
+@given("I have fixed logs write permission")
 def modify_write_permission(context):
     (context.root_project_dir / "logs").chmod(0o777)
+    journal_dir = context.root_project_dir / "logs" / "journals"
+    journal_dir.mkdir(parents=True, exist_ok=True)
+    journal_dir.chmod(0o777)
 
 
 @given("I run a non-interactive kedro new")
