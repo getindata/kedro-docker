@@ -150,6 +150,11 @@ def create_configuration_file(context):
         yaml.dump(config, config_file, default_flow_style=False)
 
 
+@given("I have fixed write permission")
+def modify_write_permission(context):
+    (context.root_project_dir / "logs").chmod(0o777)
+
+
 @given("I run a non-interactive kedro new")
 def create_project_from_config_file(context):
     """Behave step to run kedro new
@@ -192,17 +197,6 @@ def exec_kedro_target(context, command):
         context.result = run(
             make_cmd, env=context.env, cwd=str(context.root_project_dir)
         )
-
-
-@when("I execute docker run with mount directory")
-def exec_kedro_docker_run(context):
-    """Execute kedro docker run with mount directory"""
-    make_cmd = [context.kedro] + [
-        "docker",
-        "run",
-        '--docker-args="-v {}:/home/kedro/logs/"'.format(str(context.temp_dir)),
-    ]
-    context.result = run(make_cmd, env=context.env, cwd=str(context.root_project_dir))
 
 
 @when('I occupy port "{port}"')

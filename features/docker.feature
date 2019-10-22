@@ -32,6 +32,7 @@ Feature: Docker commands in new projects
   Background:
     Given I have prepared a config file
     And I run a non-interactive kedro new
+    And I have fixed write permission
     And I have executed the kedro command "install"
 
   Scenario: Execute docker build target
@@ -54,7 +55,7 @@ Feature: Docker commands in new projects
 
   Scenario: Use custom UID and GID for Docker image
     Given I have executed the kedro command "docker build --uid 10001 --gid 20002"
-    When I execute docker run with mount directory
+    When I execute the kedro command "docker run"
     Then I should get a successful exit code
     And I should get a message including "INFO - Pipeline execution completed successfully"
 
