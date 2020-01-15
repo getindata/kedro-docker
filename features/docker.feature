@@ -109,7 +109,7 @@ Feature: Docker commands in new projects
     When I execute the kedro command "docker ipython"
     Then I should see messages from docker ipython startup including "An enhanced Interactive Python"
     And  I should see messages from docker ipython startup including "INFO - ** Kedro project project-dummy"
-    And  I should see messages from docker ipython startup including "INFO - Defined global variable `context` and `catalog`"
+    And  I should see messages from docker ipython startup including "Starting a Kedro session with the following variables in scope"
 
   Scenario: Execute docker run target without building image
     Given I have removed old docker image of test project

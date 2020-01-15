@@ -65,7 +65,20 @@ jobs:
 
 workflows:
   version: 2
-  regular:
+  build:
+    jobs:
+      - build_35
+      - build_36
+      - build_37
+  daily:
+    triggers:
+      - schedule:
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only:
+                - develop
+                - master
     jobs:
       - build_35
       - build_36
