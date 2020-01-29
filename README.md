@@ -1,6 +1,6 @@
 # Kedro-Docker
-`develop` | `master`  
-----------|---------  
+`develop` | `master`
+----------|---------
 [![CircleCI](https://circleci.com/gh/quantumblacklabs/kedro-docker/tree/develop.svg?style=shield)](https://circleci.com/gh/quantumblacklabs/kedro-docker/tree/develop) | [![CircleCI](https://circleci.com/gh/quantumblacklabs/kedro-docker/tree/master.svg?style=shield)](https://circleci.com/gh/quantumblacklabs/kedro-docker/tree/master)
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
@@ -135,7 +135,7 @@ For example:
 
 1. `kedro docker cmd kedro test` will run `kedro test` inside the container
 2. `kedro docker cmd` will run `kedro run` inside the container
-3. `kedro docker cmd --docker-args="-it" /bin/bash` will create an interactive `bash` shell in the container (and allocate a pseudo-TTY connected to the container’s stdin). 
+3. `kedro docker cmd --docker-args="-it" /bin/bash` will create an interactive `bash` shell in the container (and allocate a pseudo-TTY connected to the container’s stdin).
 
 Options:
 * `--image` - Docker image name to be used, defaults to project root directory name

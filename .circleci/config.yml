@@ -32,6 +32,8 @@ jobs:
             pip install "kedro>=0.dev0"
             pip install -r requirements.txt -U
             pip install -r test_requirements.txt -U
+            pre-commit install --install-hooks
+            pre-commit install --hook-type pre-push
       - run:
           name: Echo package versions
           command: |
