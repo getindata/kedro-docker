@@ -1,11 +1,14 @@
 -r requirements.txt
-docker
 behave>=1.2.6, <2.0
+black==v19.10.b0; python_version >= '3.6'
+docker
 flake8>=3.5, <4.0
+pre-commit>=1.17.0, <2.0
 psutil==5.4.7
-pylint>=2.3.1, <3.0
-pytest>=4.4.2, <5.0
+pylint>=2.3.1, <2.4.0 # 2.4.1 doesn't work for Python 3.5, and requires investigation.
 pytest-cov>=2.7.1, <3.0
 pytest-mock>=1.10.4, <2.0
+pytest>=4.4.2, <5.0
 PyYAML>=5.1, <6.0
+trufflehog>=2.0.99, <3.0
 wheel==0.32.2

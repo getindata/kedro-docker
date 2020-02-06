@@ -1,4 +1,4 @@
-# Copyright 2018-2019 QuantumBlack Visual Analytics Limited
+# Copyright 2020 QuantumBlack Visual Analytics Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF, OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-# The QuantumBlack Visual Analytics Limited (“QuantumBlack”) name and logo
-# (either separately or in combination, “QuantumBlack Trademarks”) are
+# The QuantumBlack Visual Analytics Limited ("QuantumBlack") name and logo
+# (either separately or in combination, "QuantumBlack Trademarks") are
 # trademarks of QuantumBlack. The License does not grant you any right or
 # license to the QuantumBlack Trademarks. You may not use the QuantumBlack
 # Trademarks or any confusingly similar mark as a trademark for your product,
@@ -35,6 +35,7 @@ from behave import given, then, when
 
 from features.steps.sh_run import ChildTerminatingPopen, run
 from features.steps.util import (
+    TimeoutException,
     download_url,
     get_docker_images,
     kill_docker_containers,
@@ -45,15 +46,64 @@ from features.steps.util import (
 OK_EXIT_CODE = 0
 
 
+def _read_lines_with_timeout(process_handler, max_lines=100):
+    """
+    We want to read from multiple streams, merge outputs together,
+    limiting the number of lines we want.
+    Also don't try for longer than ``timeout`` seconds.
+
+    NOTE: a nice and easy solution might be implemented
+    with ``fcntl`` and non-blocking read, but it's unix-only.
+    """
+    lines = []
+
+    def _read_stdout():
+        # In some cases, if the command dies at start, it will be a string here.
+        stream = process_handler.stdout
+
+        if isinstance(stream, str):
+            lines.extend(stream.split("\n"))
+            return
+
+        while len(lines) < max_lines:
+            new_line = stream.readline().decode().strip()
+
+            if new_line:
+                lines.append(new_line)
+
+            sleep(0.1)
+
+    def _read_stderr():
+        while True:
+            new_line = process_handler.stderr.readline().decode().strip()
+
+            if new_line:
+                lines.append(new_line)
+
+    try:
+        timeout(_read_stdout, duration=30)
+    except TimeoutException:
+        pass
+
+    # Read the remaining error logs if any
+    try:
+        timeout(_read_stderr, duration=3)
+    except TimeoutException:
+        pass
+
+    return "\n".join(lines)
+
+
 def _get_docker_ipython_output(context):
     """Get first 16 lines of ipython output if not already retrieved"""
     if hasattr(context, "ipython_stdout"):
         return context.ipython_stdout
-    context.ipython_stdout = timeout(
-        lambda: "\n".join(context.result.stdout.readline().decode() for _ in range(16)),
-        duration=30,
-    )
-    kill_docker_containers(context.project_name)
+
+    try:
+        context.ipython_stdout = _read_lines_with_timeout(context.result, max_lines=16)
+    finally:
+        kill_docker_containers(context.project_name)
+
     return context.ipython_stdout
 
 
@@ -98,6 +148,21 @@ def create_configuration_file(context):
     }
     with context.config_file.open("w") as config_file:
         yaml.dump(config, config_file, default_flow_style=False)
+
+
+@given("I have fixed logs write permission")
+def modify_write_permission(context):
+    """
+    Kedro-docker mounts some subdirectories the current directory (like logs, notebooks etc)
+    into the Docker container.
+    If you run kedro commands with different users,
+    they might create files and directories not writable by each other.
+    So we are fixing the permissions here.
+    """
+    (context.root_project_dir / "logs").chmod(0o777)
+    journal_dir = context.root_project_dir / "logs" / "journals"
+    journal_dir.mkdir(parents=True, exist_ok=True)
+    journal_dir.chmod(0o777)
 
 
 @given("I run a non-interactive kedro new")

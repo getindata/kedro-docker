@@ -1,4 +1,4 @@
-# Copyright 2018-2019 QuantumBlack Visual Analytics Limited
+# Copyright 2020 QuantumBlack Visual Analytics Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF, OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-# The QuantumBlack Visual Analytics Limited (“QuantumBlack”) name and logo
-# (either separately or in combination, “QuantumBlack Trademarks”) are
+# The QuantumBlack Visual Analytics Limited ("QuantumBlack") name and logo
+# (either separately or in combination, "QuantumBlack Trademarks") are
 # trademarks of QuantumBlack. The License does not grant you any right or
 # license to the QuantumBlack Trademarks. You may not use the QuantumBlack
 # Trademarks or any confusingly similar mark as a trademark for your product,
@@ -58,7 +58,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 setup(
     name=name,
     version=version,
-    description="Kedro-Dockers makes it easy to package Kedro projects with Docker",
+    description="Kedro-Docker makes it easy to package Kedro projects with Docker.",
     long_description=readme,
     long_description_content_type="text/markdown",
     url="https://github.com/quantumblacklabs/kedro-docker",
@@ -68,7 +68,13 @@ setup(
     tests_require=test_requires,
     author="QuantumBlack Labs",
     packages=["kedro_docker"],
-    package_data={"kedro_docker": ["template/Dockerfile", "template/.dockerignore"]},
+    package_data={
+        "kedro_docker": [
+            "template/Dockerfile",
+            "template/.dockerignore",
+            "template/.dive-ci",
+        ]
+    },
     zip_safe=False,
     entry_points={"kedro.project_commands": ["docker = kedro_docker.plugin:commands"]},
 )
