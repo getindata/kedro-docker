@@ -55,7 +55,7 @@ def check_docker_image_exists(image: str):
 
     """
     command = ["docker", "images", "-q", image]
-    res = subprocess.run(command, stdout=PIPE, stderr=DEVNULL)
+    res = subprocess.run(command, stdout=PIPE, stderr=DEVNULL, check=False)
     if not res.stdout:
         cmd = "kedro docker build --image {0}".format(image)
         raise KedroCliError(

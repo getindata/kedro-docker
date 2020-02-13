@@ -123,7 +123,10 @@ def docker_group():
     # check that docker is running
     try:
         res = subprocess.run(
-            ["docker", "version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            ["docker", "version"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
         ).returncode
     except FileNotFoundError:
         raise KedroCliError(NO_DOCKER_MESSAGE)
