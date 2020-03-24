@@ -83,3 +83,9 @@ repos:
             language: system
             pass_filenames: false
             entry: make secret-scan
+          - id: bandit
+            name: "Bandit security check"
+            language: system
+            types: [file, python]
+            exclude: ^tests/|^features/
+            entry: bandit -ll

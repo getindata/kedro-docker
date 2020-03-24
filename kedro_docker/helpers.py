@@ -244,7 +244,7 @@ def add_jupyter_args(run_args: List[str]) -> List[str]:
     """
     run_args = run_args.copy()
     if not any(arg.split("=", 1)[0] == "--ip" for arg in run_args):
-        run_args += ["--ip", "0.0.0.0"]
+        run_args += ["--ip", "0.0.0.0"]  # nosec
     if "--no-browser" not in run_args:
         run_args += ["--no-browser"]
     return run_args
@@ -260,4 +260,4 @@ def is_port_in_use(port: int) -> bool:
         True if port is already in use, False otherwise.
     """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as _s:
-        return _s.connect_ex(("0.0.0.0", port)) == 0
+        return _s.connect_ex(("0.0.0.0", port)) == 0  # nosec
