@@ -27,8 +27,6 @@
 # limitations under the License.
 
 """Common functions for e2e testing."""
-import os
-import subprocess
 import tempfile
 import urllib
 import venv
@@ -39,8 +37,6 @@ from typing import Any, Callable, List
 
 import docker
 from kedro.cli.utils import get_pkg_version
-
-PIP_INSTALL_SCRIPT = "https://bootstrap.pypa.io/get-pip.py"
 
 
 class WaitForException(Exception):
@@ -231,30 +227,13 @@ def modify_kedro_ver(req_file: Path, version: str) -> str:
     return org_version
 
 
-def create_new_venv() -> str:
-    """
-    Create a new venv.
-    Note: Due to a bug in Python 3.5 pip needs to be manually installed.
+def create_new_venv() -> Path:
+    """Create a new venv.
 
     Returns:
-        Path to created venv.
+        path to created venv
     """
     # Create venv
-    venv_dir = tempfile.mkdtemp()
-    venv.main([venv_dir, "--without-pip"])
-
-    if os.name == "posix":
-        python_executable = Path(venv_dir) / "bin" / "python"
-    else:
-        python_executable = Path(venv_dir) / "Scripts" / "python.exe"
-
-    # Download and run pip installer
-    # Windows blocks access unless delete set to False
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_file.write(download_url(PIP_INSTALL_SCRIPT).encode())
-        tmp_file.flush()
-        os.fsync(tmp_file)
-        subprocess.check_call([str(python_executable), tmp_file.name])
-
-    os.unlink(tmp_file.name)
+    venv_dir = Path(tempfile.mkdtemp())
+    venv.main([str(venv_dir)])
     return venv_dir

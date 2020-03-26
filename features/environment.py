@@ -55,7 +55,7 @@ def before_all(context):
     if "E2E_VENV" in os.environ:
         context.venv_dir = Path(os.environ["E2E_VENV"])
     else:
-        context.venv_dir = Path(create_new_venv())
+        context.venv_dir = create_new_venv()
 
     # note the locations of some useful stuff
     # this is because exe resolution in supbrocess doens't respect a passed env

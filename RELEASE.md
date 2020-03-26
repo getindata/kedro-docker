@@ -1,6 +1,7 @@
 # Upcoming release
 
 ## Major features and improvements
+* Drop support for Python 3.5.
 
 ## Bug fixes and other changes
 
