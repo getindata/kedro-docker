@@ -102,9 +102,10 @@ Feature: Docker commands in new projects
   Scenario: Execute docker cmd with non-existent target
     Given I have executed the kedro command "docker build"
     When I execute the kedro command "docker cmd kedro non-existent"
-    Then Standard error should contain a message including "Error: No such command "non-existent""
+    Then Standard error should contain a message including "Error: No such command 'non-existent'"
 
   Scenario: Execute docker ipython target
+    Given I have executed the kedro command "build-reqs"
     Given I have executed the kedro command "docker build"
     When I execute the kedro command "docker ipython"
     Then I should see messages from docker ipython startup including "An enhanced Interactive Python"

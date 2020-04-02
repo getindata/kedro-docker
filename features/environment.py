@@ -58,7 +58,7 @@ def before_all(context):
         context.venv_dir = create_new_venv()
 
     # note the locations of some useful stuff
-    # this is because exe resolution in supbrocess doens't respect a passed env
+    # this is because exe resolution in subprocess doesn't respect a passed env
     if os.name == "posix":
         bin_dir = Path(context.venv_dir) / "bin"
         path_sep = ":"
@@ -82,9 +82,9 @@ def before_all(context):
     call([context.python, "-m", "pip", "install", "-U", "pip", "pip-tools"])
     pip_compile = str(bin_dir / "pip-compile")
     with tempfile.TemporaryDirectory() as tmpdirname:
-        complied_reqs = str(Path(tmpdirname) / "requirements.txt")
-        call([pip_compile, "requirements.txt", "-o", complied_reqs])
-        call([context.pip, "install", "-r", complied_reqs])
+        compiled_reqs = str(Path(tmpdirname) / "requirements.txt")
+        call([pip_compile, "requirements.txt", "-o", compiled_reqs])
+        call([context.pip, "install", "-r", compiled_reqs])
 
     # install the plugin
     call([context.pip, "install", "."])
