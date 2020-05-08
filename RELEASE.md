@@ -2,6 +2,8 @@
 
 ## Major features and improvements
 * Drop support for Python 3.5.
+* Added `--with-spark` CLI option to `kedro docker build` command to create an image with Spark and Hadoop.
+* Added `Dockerfile` to create an image without Spark and Hadoop.
 
 ## Bug fixes and other changes
 

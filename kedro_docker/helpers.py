@@ -190,12 +190,16 @@ def copy_template_files(
 
     """
     for file_ in template_files:
-        dest = project_path / file_
+        dest_file = "Dockerfile" if file_.startswith("Dockerfile") else file_
+        dest = project_path / dest_file
         if not dest.exists():
             src = template_path / file_
             shutil.copyfile(str(src), str(dest))
             if verbose:
                 secho("Creating `{0}`".format(str(dest)))
+        else:
+            msg = "{} already exists and won't be overwritten.".format(dest_file)
+            secho(msg, fg="yellow")
 
 
 def get_uid_gid(uid: int = None, gid: int = None) -> Tuple[int, int]:

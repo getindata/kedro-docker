@@ -48,6 +48,7 @@ Behind the scenes Kedro does the following:
 2. Builds the project image using the `Dockerfile` from the project root directory
 
 > *Note:* When calling `kedro docker build` you can also pass any specific options for `docker build` by specifying `--docker-args` option. For example, `kedro docker build --docker-args="--no-cache"` instructs Docker not to use cache when building the image. You can learn more about available options [here](https://docs.docker.com/engine/reference/commandline/build/).
+> *Note:* By default, `kedro docker build` creates an image without Spark and Hadoop.
 
 By default, the project Docker image will be tagged as `<project-root-dir>:latest`, where `<project-root-dir>` is the name of the project root directory. To change the tag, you can add the `--image` command line option, for example: `kedro docker build --image my-project-tag`.
 
@@ -58,6 +59,7 @@ Options:
 * `--gid` - optional integer Group ID for kedro user inside the container. Defaults to the current user's GID
 * `--image` - optional Docker image tag. Defaults to the project directory name
 * `--docker-args` - optional string containing extra options for `docker build` command
+* `--with-spark` - optional flag to create an image additionally with Spark and Hadoop
 * `-h, --help` - show command help and exit.
 
 ### Run your project in a Docker environment

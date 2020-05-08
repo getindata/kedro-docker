@@ -70,7 +70,7 @@ setup(
     packages=["kedro_docker"],
     package_data={
         "kedro_docker": [
-            "template/Dockerfile",
+            "template/Dockerfile.*",
             "template/.dockerignore",
             "template/.dive-ci",
         ]
