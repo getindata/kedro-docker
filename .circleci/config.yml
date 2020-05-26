@@ -76,12 +76,18 @@ jobs:
     environment:
       CONDA_ENV_PY_VERSION: "3.7"
     steps: [build]
+  build_38:
+    executor: circleci_machine
+    environment:
+      CONDA_ENV_PY_VERSION: "3.8"
+    steps: [build]
 
 workflows:
   build:
     jobs:
       - build_36
       - build_37
+      - build_38
   daily:
     triggers:
       - schedule:
@@ -94,3 +100,4 @@ workflows:
     jobs:
       - build_36
       - build_37
+      - build_38
