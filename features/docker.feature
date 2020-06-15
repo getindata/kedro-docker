@@ -35,6 +35,15 @@ Feature: Docker commands in new projects
     And I have fixed logs write permission
     And I have executed the kedro command "install"
 
+  Scenario: Execute docker build and run using spark Dockerfile
+    Given I have removed old docker image of test project
+    When I execute the kedro command "docker build --with-spark"
+    Then I should get a successful exit code
+    And A new docker image for test project should be created
+    When I execute the kedro command "docker run"
+    Then I should get a successful exit code
+    And I should get a message including "kedro.runner.sequential_runner - INFO - Pipeline execution completed successfully"
+
   Scenario: Execute docker build target
     Given I have removed old docker image of test project
     When I execute the kedro command "docker build"
@@ -102,7 +111,7 @@ Feature: Docker commands in new projects
   Scenario: Execute docker cmd with non-existent target
     Given I have executed the kedro command "docker build"
     When I execute the kedro command "docker cmd kedro non-existent"
-    Then Standard error should contain a message including "Error: No such command "non-existent""
+    Then Standard error should contain a message including "Error: No such command 'non-existent'"
 
   Scenario: Execute docker ipython target
     Given I have executed the kedro command "docker build"

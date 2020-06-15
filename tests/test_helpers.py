@@ -119,15 +119,18 @@ class TestComposeDockerRunArgs:
 
 
 class TestCopyTemplateFiles:
-    def test_copy(self, tmp_path):
+    def test_copy(self, tmp_path, capsys):
         """Test copying template files"""
         this_file = Path(__file__)
         dest_file = tmp_path / this_file.name
         assert not dest_file.exists()
         copy_template_files(tmp_path, this_file.parent, [this_file.name], True)
+        captured = capsys.readouterr()
+        assert "Creating" in captured.out
+        assert "already exists" not in captured.out
         assert dest_file.exists()
 
-    def test_skip(self, tmp_path):
+    def test_skip(self, tmp_path, capsys):
         """Test copying is skipped if destination path already exists"""
         this_file = Path(__file__)
         dest_file = tmp_path / this_file.name
@@ -136,6 +139,25 @@ class TestCopyTemplateFiles:
         copy_template_files(tmp_path, this_file.parent, [this_file.name])
         with dest_file.open("r") as f:
             assert f.read().strip() == "helo world"
+        captured = capsys.readouterr()
+        expected_out = "{} already exists and won't be overwritten.\n".format(
+            this_file.name
+        )
+        assert "Creating" not in captured.out
+        assert captured.out == expected_out
+
+    def test_copy_dockerfile(self, tmp_path):
+        """Test copying template Dockerfile"""
+        dockerfile = (
+            Path(__file__).parents[1]
+            / "kedro_docker"
+            / "template"
+            / "Dockerfile.simple"
+        )
+        dest_file = tmp_path / "Dockerfile"
+        assert not dest_file.exists()
+        copy_template_files(tmp_path, dockerfile.parent, [dockerfile.name])
+        assert dest_file.exists()
 
 
 class TestGetUidGid:

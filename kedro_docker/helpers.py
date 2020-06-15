@@ -55,7 +55,7 @@ def check_docker_image_exists(image: str):
 
     """
     command = ["docker", "images", "-q", image]
-    res = subprocess.run(command, stdout=PIPE, stderr=DEVNULL)
+    res = subprocess.run(command, stdout=PIPE, stderr=DEVNULL, check=False)
     if not res.stdout:
         cmd = "kedro docker build --image {0}".format(image)
         raise KedroCliError(
@@ -190,12 +190,16 @@ def copy_template_files(
 
     """
     for file_ in template_files:
-        dest = project_path / file_
+        dest_file = "Dockerfile" if file_.startswith("Dockerfile") else file_
+        dest = project_path / dest_file
         if not dest.exists():
             src = template_path / file_
             shutil.copyfile(str(src), str(dest))
             if verbose:
                 secho("Creating `{0}`".format(str(dest)))
+        else:
+            msg = "{} already exists and won't be overwritten.".format(dest_file)
+            secho(msg, fg="yellow")
 
 
 def get_uid_gid(uid: int = None, gid: int = None) -> Tuple[int, int]:
@@ -244,7 +248,7 @@ def add_jupyter_args(run_args: List[str]) -> List[str]:
     """
     run_args = run_args.copy()
     if not any(arg.split("=", 1)[0] == "--ip" for arg in run_args):
-        run_args += ["--ip", "0.0.0.0"]
+        run_args += ["--ip", "0.0.0.0"]  # nosec
     if "--no-browser" not in run_args:
         run_args += ["--no-browser"]
     return run_args
@@ -260,4 +264,4 @@ def is_port_in_use(port: int) -> bool:
         True if port is already in use, False otherwise.
     """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as _s:
-        return _s.connect_ex(("0.0.0.0", port)) == 0
+        return _s.connect_ex(("0.0.0.0", port)) == 0  # nosec

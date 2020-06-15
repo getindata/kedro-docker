@@ -123,7 +123,10 @@ def docker_group():
     # check that docker is running
     try:
         res = subprocess.run(
-            ["docker", "version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            ["docker", "version"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
         ).returncode
     except FileNotFoundError:
         raise KedroCliError(NO_DOCKER_MESSAGE)
@@ -146,11 +149,14 @@ def docker_group():
     help="Group ID for kedro user inside the container. "
     "Default is the current user's GID",
 )
+@click.option(
+    "--with-spark", "spark", is_flag=True, help="Build an image with Spark and Hadoop."
+)
 @_make_image_option()
 @_make_docker_args_option(
     help="Optional arguments to be passed to `docker build` command"
 )
-def docker_build(uid, gid, image, docker_args):
+def docker_build(uid, gid, spark, image, docker_args):
     """Build a Docker image for the project."""
 
     uid, gid = get_uid_gid(uid, gid)
@@ -159,10 +165,11 @@ def docker_build(uid, gid, image, docker_args):
 
     template_path = Path(__file__).parent / "template"
     verbose = get_project_context("verbose")
+    docker_file = "Dockerfile.{}".format("spark" if spark else "simple")
     copy_template_files(
         project_path,
         template_path,
-        ["Dockerfile", ".dockerignore", ".dive-ci"],
+        [docker_file, ".dockerignore", ".dive-ci"],
         verbose,
     )
 

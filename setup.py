@@ -63,14 +63,14 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/quantumblacklabs/kedro-docker",
     license="Apache Software License (Apache 2.0)",
-    python_requires=">=3.5, <3.8",
+    python_requires=">=3.6, <3.9",
     install_requires=requires,
     tests_require=test_requires,
     author="QuantumBlack Labs",
     packages=["kedro_docker"],
     package_data={
         "kedro_docker": [
-            "template/Dockerfile",
+            "template/Dockerfile.*",
             "template/.dockerignore",
             "template/.dive-ci",
         ]
