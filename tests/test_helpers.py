@@ -25,11 +25,11 @@
 #
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import sys
 from pathlib import Path
 
+import pytest
 from click import ClickException
-from pytest import mark, raises
 
 from kedro_docker.helpers import (
     add_jupyter_args,
@@ -48,12 +48,12 @@ def test_missing_docker_image(mocker):
     patched_subproc.return_value.stdout = b""
     image_name = "image-name"
     pattern = "Unable to find image `{}` locally".format(image_name)
-    with raises(ClickException, match=pattern):
+    with pytest.raises(ClickException, match=pattern):
         check_docker_image_exists(image_name)
     assert patched_subproc.call_count == 1
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "args",
     [
         ["image-name-with-suffix"],
@@ -98,8 +98,8 @@ class TestComposeDockerRunArgs:
         expected += kwargs["user_args"]
         assert compose_docker_run_args(**kwargs) == expected
 
-    @mark.parametrize("host_root", ["host_root", None])
-    @mark.parametrize("container_root", ["container_root", None])
+    @pytest.mark.parametrize("host_root", ["host_root", None])
+    @pytest.mark.parametrize("container_root", ["container_root", None])
     def test_bad_mount(self, host_root, container_root):
         """Check the error raised when host and/or container roots are
         not defined, but mount volumes are provided"""
@@ -110,7 +110,7 @@ class TestComposeDockerRunArgs:
             "are provided."
         )
         if not (host_root and container_root):
-            with raises(ClickException, match=pattern):
+            with pytest.raises(ClickException, match=pattern):
                 compose_docker_run_args(
                     host_root=host_root,
                     container_root=container_root,
@@ -161,7 +161,10 @@ class TestCopyTemplateFiles:
 
 
 class TestGetUidGid:
-    @mark.parametrize(
+    @pytest.mark.skipif(
+        sys.platform.startswith("win"), reason="Cannot test POSIX on Windows"
+    )
+    @pytest.mark.parametrize(
         "uid, gid, expected",
         [
             [999, 0, (999, 0)],
@@ -179,7 +182,7 @@ class TestGetUidGid:
         mocker.patch("pwd.getpwuid", return_value=pw_gid)
         assert get_uid_gid(uid, gid) == expected
 
-    @mark.parametrize(
+    @pytest.mark.parametrize(
         "uid, gid, expected",
         [
             [234, 567, (234, 567)],
@@ -194,7 +197,7 @@ class TestGetUidGid:
         assert get_uid_gid(uid, gid) == expected
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "run_args, expected",
     [
         ([], ["--ip", "0.0.0.0", "--no-browser"]),
@@ -213,8 +216,8 @@ def test_add_jupyter_args(run_args, expected):
     assert add_jupyter_args(run_args) == expected
 
 
-@mark.parametrize("port", [8888, 98765, 80, 8080])
-@mark.parametrize("mock_return_value, expected", [(0, True), (61, False)])
+@pytest.mark.parametrize("port", [8888, 98765, 80, 8080])
+@pytest.mark.parametrize("mock_return_value, expected", [(0, True), (61, False)])
 def test_is_port_in_use(mocker, port, mock_return_value, expected):
     _mock = mocker.patch("socket.socket.connect_ex", return_value=mock_return_value)
     assert is_port_in_use(port) is expected
