@@ -48,9 +48,12 @@ Behind the scenes Kedro does the following:
 2. Builds the project image using the `Dockerfile` from the project root directory
 
 > *Note:* When calling `kedro docker build` you can also pass any specific options for `docker build` by specifying `--docker-args` option. For example, `kedro docker build --docker-args="--no-cache"` instructs Docker not to use cache when building the image. You can learn more about available options [here](https://docs.docker.com/engine/reference/commandline/build/).
+
 > *Note:* By default, `kedro docker build` creates an image without Spark and Hadoop.
 
-By default, the project Docker image will be tagged as `<project-root-dir>:latest`, where `<project-root-dir>` is the name of the project root directory. To change the tag, you can add the `--image` command line option, for example: `kedro docker build --image my-project-tag`.
+> *Note:* By default, when calling `kedro docker build` image is built with `python:VERSION-buster` image, where VERSION is Python (major + minor) version from the current environment. By specifying `--base-image` option, different base image can be used. For example `kedro docker build --base-image="python:3.8-buster"`.
+
+The project Docker image will automatically be tagged as `<project-root-dir>:latest`, where `<project-root-dir>` is the name of the project root directory. To change the tag, you can add the `--image` command line option, for example: `kedro docker build --image my-project-tag`.
 
 When building the image Kedro copies the contents of the current project into the image, however it ignores the locations specified in `.dockerignore` file in order to prevent the propagation of potentially sensitive data into the image. We recommend mounting those volumes at runtime.
 
@@ -60,6 +63,7 @@ Options:
 * `--image` - optional Docker image tag. Defaults to the project directory name
 * `--docker-args` - optional string containing extra options for `docker build` command
 * `--with-spark` - optional flag to create an image additionally with Spark and Hadoop
+* `--base-image` - optional base Docker image. Default is Debian buster with the current environment Python version, e.g. `python:3.7-buster`
 * `-h, --help` - show command help and exit.
 
 ### Run your project in a Docker environment

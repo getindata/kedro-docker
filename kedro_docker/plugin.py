@@ -30,6 +30,7 @@
 import shlex
 import subprocess
 from pathlib import Path
+from sys import version_info
 from typing import Dict, Tuple, Union
 
 import click
@@ -59,6 +60,7 @@ DOCKER_DEFAULT_VOLUMES = (
     "results",
 )
 
+DEFAULT_BASE_IMAGE = f"python:{version_info.major}.{version_info.minor}-buster"
 DIVE_IMAGE = "wagoodman/dive:latest"
 
 
@@ -152,20 +154,27 @@ def docker_group():
 @click.option(
     "--with-spark", "spark", is_flag=True, help="Build an image with Spark and Hadoop."
 )
+@click.option(
+    "--base-image",
+    type=str,
+    default=DEFAULT_BASE_IMAGE,
+    show_default=True,  # pylint: disable=too-many-arguments
+    help="Base image for Dockerfile.",
+)
 @_make_image_option()
 @_make_docker_args_option(
     help="Optional arguments to be passed to `docker build` command"
 )
-def docker_build(uid, gid, spark, image, docker_args):
+def docker_build(uid, gid, spark, base_image, image, docker_args):
     """Build a Docker image for the project."""
-
     uid, gid = get_uid_gid(uid, gid)
     project_path = get_project_context("project_path")
     image = image or str(project_path.name)
 
     template_path = Path(__file__).parent / "template"
     verbose = get_project_context("verbose")
-    docker_file = "Dockerfile.{}".format("spark" if spark else "simple")
+    docker_file_version = "spark" if spark else "simple"
+    docker_file = f"Dockerfile.{docker_file_version}"
     copy_template_files(
         project_path,
         template_path,
@@ -175,8 +184,9 @@ def docker_build(uid, gid, spark, image, docker_args):
 
     combined_args = compose_docker_run_args(
         required_args=[
-            ("--build-arg", "KEDRO_UID={0}".format(uid)),
-            ("--build-arg", "KEDRO_GID={0}".format(gid)),
+            ("--build-arg", f"KEDRO_UID={uid}"),
+            ("--build-arg", f"KEDRO_GID={gid}"),
+            ("--build-arg", f"BASE_IMAGE={base_image}"),
         ],
         # add image tag if only it is not already supplied by the user
         optional_args=[("-t", image)],
@@ -208,7 +218,7 @@ def docker_run(image, docker_args, args):
     _docker_run_args = compose_docker_run_args(
         optional_args=[("--rm", None), ("--name", container_name)],
         user_args=docker_args,
-        **_mount_info()
+        **_mount_info(),
     )
 
     command = (
@@ -228,7 +238,7 @@ def docker_ipython(image, docker_args, args):
     _docker_run_args = compose_docker_run_args(
         optional_args=[("--rm", None), ("-it", None), ("--name", container_name)],
         user_args=docker_args,
-        **_mount_info()
+        **_mount_info(),
     )
 
     command = (
@@ -255,7 +265,7 @@ def docker_jupyter_notebook(docker_args, port, image, args):
         required_args=[("-p", "{}:8888".format(port))],
         optional_args=[("--rm", None), ("-it", None), ("--name", container_name)],
         user_args=docker_args,
-        **_mount_info()
+        **_mount_info(),
     )
 
     args = add_jupyter_args(list(args))
@@ -282,7 +292,7 @@ def docker_jupyter_lab(docker_args, port, image, args):
         required_args=[("-p", "{}:8888".format(port))],
         optional_args=[("--rm", None), ("-it", None), ("--name", container_name)],
         user_args=docker_args,
-        **_mount_info()
+        **_mount_info(),
     )
 
     args = add_jupyter_args(list(args))
@@ -303,7 +313,7 @@ def docker_cmd(args, docker_args, image):
     _docker_run_args = compose_docker_run_args(
         optional_args=[("--rm", None), ("--name", container_name)],
         user_args=docker_args,
-        **_mount_info()
+        **_mount_info(),
     )
 
     command = ["docker", "run"] + _docker_run_args + [image] + list(args)

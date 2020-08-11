@@ -34,9 +34,9 @@ Feature: Docker commands in new projects
     And I run a non-interactive kedro new
     And I have fixed logs write permission
     And I have executed the kedro command "install"
+    And I have removed old docker image of test project
 
   Scenario: Execute docker build and run using spark Dockerfile
-    Given I have removed old docker image of test project
     When I execute the kedro command "docker build --with-spark"
     Then I should get a successful exit code
     And A new docker image for test project should be created
@@ -45,13 +45,26 @@ Feature: Docker commands in new projects
     And I should get a message including "kedro.runner.sequential_runner - INFO - Pipeline execution completed successfully"
 
   Scenario: Execute docker build target
-    Given I have removed old docker image of test project
     When I execute the kedro command "docker build"
     Then I should get a successful exit code
     And A new docker image for test project should be created
 
+  Scenario: Execute docker build target with custom base image
+    Given I have executed the kedro command "docker build --base-image python:3.7.8-buster"
+    When I execute the kedro command "docker cmd python -V"
+    Then I should get a successful exit code
+    And A new docker image for test project should be created
+    And I should get a message including "Python 3.7.8"
+
   Scenario: Execute docker run target successfully
     Given I have executed the kedro command "docker build"
+    When I execute the kedro command "docker run"
+    Then I should get a successful exit code
+    And I should get a message including "kedro.runner.sequential_runner - INFO - Pipeline execution completed successfully"
+
+  Scenario: Execute docker run with custom base image
+    When I execute the kedro command "docker build --base-image python:3.7.8-buster"
+    Then I should get a successful exit code
     When I execute the kedro command "docker run"
     Then I should get a successful exit code
     And I should get a message including "kedro.runner.sequential_runner - INFO - Pipeline execution completed successfully"
@@ -121,7 +134,6 @@ Feature: Docker commands in new projects
     And  I should see messages from docker ipython startup including "Starting a Kedro session with the following variables in scope"
 
   Scenario: Execute docker run target without building image
-    Given I have removed old docker image of test project
     When I execute the kedro command "docker run"
     Then I should get an error exit code
     And Standard error should contain a message including "Error: Unable to find image `project-dummy` locally."
@@ -140,7 +152,6 @@ Feature: Docker commands in new projects
     And I should get a message including "Result:PASS [Total:3] [Passed:2] [Failed:0] [Warn:0] [Skipped:1]"
 
   Scenario: Execute docker dive without building image
-    Given I have removed old docker image of test project
     When I execute the kedro command "docker dive"
     Then I should get an error exit code
     And Standard error should contain a message including "Error: Unable to find image `project-dummy` locally."
