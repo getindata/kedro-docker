@@ -130,8 +130,8 @@ def docker_group():
             stderr=subprocess.DEVNULL,
             check=False,
         ).returncode
-    except FileNotFoundError:
-        raise KedroCliError(NO_DOCKER_MESSAGE)
+    except FileNotFoundError as err:
+        raise KedroCliError(NO_DOCKER_MESSAGE) from err
     if res:
         raise KedroCliError(NO_DOCKER_MESSAGE)
 

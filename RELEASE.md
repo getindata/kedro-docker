@@ -6,6 +6,7 @@
 * By default `kedro docker build` pulls Debian buster base image with Python version obtained from the current environment.
 
 ## Bug fixes and other changes
+* Fixed `/home/kedro` directory permissions for containers run on Linux hosts.
 
 ## Breaking changes to the API
 

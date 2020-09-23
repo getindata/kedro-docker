@@ -16,6 +16,7 @@ WORKDIR /home/kedro
 COPY . .
 RUN chown -R kedro:${KEDRO_GID} /home/kedro
 USER kedro
+RUN chmod -R +rwx /home/kedro
 
 EXPOSE 8888
 
