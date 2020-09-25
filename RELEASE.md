@@ -4,6 +4,7 @@
 
 * Added `--base-image` CLI option for `kedro docker build` command to create an image with the given base image.
 * By default `kedro docker build` pulls Debian buster base image with Python version obtained from the current environment.
+* Added `kedro docker init` command to generate `Dockerfile`, `.dockerignore` and `.dive-ci` files without building the image.
 
 ## Bug fixes and other changes
 * Fixed `/home/kedro` directory permissions for containers run on Linux hosts.
@@ -12,7 +13,7 @@
 
 ## Thanks for supporting contributions
 
-[Adrian Piotr Kruszewski](https://github.com/akruszewski)
+[Adrian Piotr Kruszewski](https://github.com/akruszewski), [Kajetan Maurycy Olszewski](https://github.com/kaemo)
 
 # Release 0.2.0
 

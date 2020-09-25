@@ -34,6 +34,21 @@ The following conditions must be true for Kedro-Docker to package your project:
 * Make sure you have [installed](https://docs.docker.com/install/) Docker
 * Kedro-Docker assumes that [Docker daemon](https://docs.docker.com/engine/docker-overview/) is up and running in your system
 
+### Generating a Dockerfile
+
+In order to generate a `Dockerfile` for your project, navigate to the project's root directory and then run the following from the command line:
+
+```bash
+kedro docker init
+```
+
+This command will generate `Dockerfile`, `.dockerignore` and `.dive-ci` files for your project.
+
+Options:
+
+* `--with-spark` - optional flag to create a `Dockerimage` file with Spark and Hadoop support
+* `-h, --help` - show command help and exit.
+
 ### Build a Docker image
 
 In order to build a Docker image for your project, navigate to the project's root directory and then run the following from the command line:
@@ -52,6 +67,8 @@ Behind the scenes Kedro does the following:
 > *Note:* By default, `kedro docker build` creates an image without Spark and Hadoop.
 
 > *Note:* By default, when calling `kedro docker build` image is built with `python:VERSION-buster` image, where VERSION is Python (major + minor) version from the current environment. By specifying `--base-image` option, different base image can be used. For example `kedro docker build --base-image="python:3.8-buster"`.
+
+> *Note:* You can generate the `Dockerfile`, `.dockerignore` or `.dive-ci` files without building the image by running `kedro docker init`. This might be of use in case you would like to modify these files before the first build.
 
 The project Docker image will automatically be tagged as `<project-root-dir>:latest`, where `<project-root-dir>` is the name of the project root directory. To change the tag, you can add the `--image` command line option, for example: `kedro docker build --image my-project-tag`.
 

@@ -36,6 +36,21 @@ Feature: Docker commands in new projects
     And I have executed the kedro command "install"
     And I have removed old docker image of test project
 
+  Scenario: Execute docker init
+    When I execute the kedro command "docker init"
+    Then I should get a successful exit code
+    And A Dockerfile file should exist
+    And A .dive-ci file should exist
+    And A .dockerignore file should exist
+
+  Scenario: Execute docker init --with-spark
+    When I execute the kedro command "docker init --with-spark"
+    Then I should get a successful exit code
+    And A Dockerfile file should exist
+    And A Dockerfile file should contain SPARK_VERSION string
+    And A .dive-ci file should exist
+    And A .dockerignore file should exist
+
   Scenario: Execute docker build and run using spark Dockerfile
     When I execute the kedro command "docker build --with-spark"
     Then I should get a successful exit code
