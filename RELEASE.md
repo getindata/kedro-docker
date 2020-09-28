@@ -2,6 +2,16 @@
 
 ## Major features and improvements
 
+## Bug fixes and other changes
+
+## Breaking changes to the API
+
+## Thanks for supporting contributions
+
+# Release 0.2.1
+
+## Major features and improvements
+
 * Added `--base-image` CLI option for `kedro docker build` command to create an image with the given base image.
 * By default `kedro docker build` pulls Debian buster base image with Python version obtained from the current environment.
 * Added `kedro docker init` command to generate `Dockerfile`, `.dockerignore` and `.dive-ci` files without building the image.
