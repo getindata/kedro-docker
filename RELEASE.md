@@ -3,8 +3,10 @@
 ## Major features and improvements
 
 ## Bug fixes and other changes
+* Replaced deprecated `get_project_context("project_path")` calls.
 
 ## Breaking changes to the API
+* Replaced deprecated `kedro.cli` imports with `kedro.framework.cli` (incompatible with Kedro `<0.16.0`).
 
 ## Thanks for supporting contributions
 

@@ -40,7 +40,7 @@ from subprocess import DEVNULL, PIPE
 from typing import List, Sequence, Tuple, Union
 
 from click import secho
-from kedro.cli.utils import KedroCliError
+from kedro.framework.cli.utils import KedroCliError
 
 
 def check_docker_image_exists(image: str):
@@ -57,10 +57,10 @@ def check_docker_image_exists(image: str):
     command = ["docker", "images", "-q", image]
     res = subprocess.run(command, stdout=PIPE, stderr=DEVNULL, check=False)
     if not res.stdout:
-        cmd = "kedro docker build --image {0}".format(image)
+        cmd = f"kedro docker build --image {image}"
         raise KedroCliError(
-            "Unable to find image `{0}` locally. Please build it first by running:\n"
-            "{1}".format(image, cmd)
+            f"Unable to find image `{image}` locally. Please build it first "
+            f"by running:\n{cmd}"
         )
 
 
@@ -196,9 +196,9 @@ def copy_template_files(
             src = template_path / file_
             shutil.copyfile(str(src), str(dest))
             if verbose:
-                secho("Creating `{0}`".format(str(dest)))
+                secho(f"Creating `{dest}`")
         else:
-            msg = "{} already exists and won't be overwritten.".format(dest_file)
+            msg = f"{dest_file} already exists and won't be overwritten."
             secho(msg, fg="yellow")
 
 
