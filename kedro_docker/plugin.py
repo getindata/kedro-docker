@@ -34,8 +34,9 @@ from sys import version_info
 from typing import Dict, Tuple, Union
 
 import click
-from kedro.framework.cli import get_project_context
+from kedro import __version__ as kedro_version
 from kedro.framework.cli.utils import KedroCliError, call, forward_command
+from semver import VersionInfo
 
 from .helpers import (
     add_jupyter_args,
@@ -46,6 +47,8 @@ from .helpers import (
     is_port_in_use,
     make_container_name,
 )
+
+KEDRO_VERSION = VersionInfo.parse(kedro_version)
 
 NO_DOCKER_MESSAGE = """
 Cannot connect to the Docker daemon. Is the Docker daemon running?
@@ -65,7 +68,7 @@ DIVE_IMAGE = "wagoodman/dive:latest"
 
 
 def _image_callback(ctx, param, value):  # pylint: disable=unused-argument
-    image = value or get_project_context().project_path.name
+    image = value or Path.cwd().name
     check_docker_image_exists(image)
     return image
 
@@ -146,10 +149,16 @@ def docker_group():
 )
 def docker_init(spark):
     """Initialize a Dockerfile for the project."""
-    project_path = get_project_context().project_path
-
+    project_path = Path.cwd()
     template_path = Path(__file__).parent / "template"
-    verbose = get_project_context("verbose")
+
+    if KEDRO_VERSION.match(">=0.17.0"):
+        verbose = KedroCliError.VERBOSE_ERROR  # pylint: disable=no-member
+    else:
+        from kedro.framework.cli.cli import (  # pylint: disable=import-outside-toplevel
+            _VERBOSE as verbose,
+        )
+
     docker_file_version = "spark" if spark else "simple"
     docker_file = f"Dockerfile.{docker_file_version}"
     copy_template_files(
@@ -193,7 +202,7 @@ def docker_init(spark):
 def docker_build(ctx, uid, gid, spark, base_image, image, docker_args):
     """Build a Docker image for the project."""
     uid, gid = get_uid_gid(uid, gid)
-    project_path = get_project_context().project_path
+    project_path = Path.cwd()
     image = image or project_path.name
 
     ctx.invoke(docker_init, spark=spark)
@@ -213,9 +222,8 @@ def docker_build(ctx, uid, gid, spark, base_image, image, docker_args):
 
 
 def _mount_info() -> Dict[str, Union[str, Tuple]]:
-    project_path = get_project_context().project_path
     res = dict(
-        host_root=str(project_path),
+        host_root=str(Path.cwd()),
         container_root="/home/kedro",
         mount_volumes=DOCKER_DEFAULT_VOLUMES,
     )

@@ -36,7 +36,7 @@ from time import sleep, time
 from typing import Any, Callable, List
 
 import docker
-from kedro.cli.utils import get_pkg_version
+from kedro.framework.cli.utils import get_pkg_version
 
 
 class WaitForException(Exception):
