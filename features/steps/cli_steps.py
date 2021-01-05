@@ -167,7 +167,7 @@ def modify_write_permission(context):
     journal_dir.chmod(0o777)
 
 
-@given("I run a non-interactive kedro new")
+@given("I run a non-interactive kedro new!")
 def create_project_from_config_file(context):
     """Behave step to run kedro new
     given the config I previously created.
