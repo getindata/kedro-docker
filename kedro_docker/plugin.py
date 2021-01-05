@@ -153,9 +153,9 @@ def docker_init(spark):
     template_path = Path(__file__).parent / "template"
 
     if KEDRO_VERSION.match(">=0.17.0"):
-        verbose = KedroCliError.VERBOSE_ERROR  # pylint: disable=no-member
+        verbose = KedroCliError.VERBOSE_ERROR
     else:
-        from kedro.framework.cli.cli import (  # pylint: disable=import-outside-toplevel
+        from kedro.framework.cli.cli import (  # pylint: disable=import-outside-toplevel, no-name-in-module
             _VERBOSE as verbose,
         )
 
