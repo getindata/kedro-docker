@@ -153,9 +153,9 @@ def docker_init(spark):
     template_path = Path(__file__).parent / "template"
 
     if KEDRO_VERSION.match(">=0.17.0"):
-        verbose = KedroCliError.VERBOSE_ERROR  # pylint: disable=no-member
+        verbose = KedroCliError.VERBOSE_ERROR
     else:
-        from kedro.framework.cli.cli import (  # pylint: disable=import-outside-toplevel
+        from kedro.framework.cli.cli import (  # pylint: disable=import-outside-toplevel, no-name-in-module
             _VERBOSE as verbose,
         )
 
@@ -233,10 +233,12 @@ def _mount_info() -> Dict[str, Union[str, Tuple]]:
 @forward_command(docker_group, "run")
 @_make_image_option(callback=_image_callback)
 @_make_docker_args_option()
-def docker_run(image, docker_args, args):
+def docker_run(image, docker_args, args, **kwargs):  # pylint: disable=unused-argument
     """Run the pipeline in the Docker container.
     Any extra arguments unspecified in this help
-    are passed to `docker run` as is."""
+    are passed to `docker run` as is.
+
+    **kwargs is needed to make the global `verbose` argument work and pass it through."""
 
     container_name = make_container_name(image, "run")
     _docker_run_args = compose_docker_run_args(
@@ -254,10 +256,15 @@ def docker_run(image, docker_args, args):
 @forward_command(docker_group, "ipython")
 @_make_image_option(callback=_image_callback)
 @_make_docker_args_option()
-def docker_ipython(image, docker_args, args):
+def docker_ipython(
+    image, docker_args, args, **kwargs
+):  # pylint: disable=unused-argument
     """Run ipython in the Docker container.
     Any extra arguments unspecified in this help are passed to
-    `kedro ipython` command inside the container as is."""
+    `kedro ipython` command inside the container as is.
+
+    **kwargs is needed to make the global `verbose` argument work and pass it through."""
+
     container_name = make_container_name(image, "ipython")
     _docker_run_args = compose_docker_run_args(
         optional_args=[("--rm", None), ("-it", None), ("--name", container_name)],
@@ -280,10 +287,15 @@ def docker_jupyter():
 @_make_image_option(callback=_image_callback)
 @_make_port_option()
 @_make_docker_args_option()
-def docker_jupyter_notebook(docker_args, port, image, args):
+def docker_jupyter_notebook(
+    docker_args, port, image, args, **kwargs
+):  # pylint: disable=unused-argument):
     """Run jupyter notebook in the Docker container.
     Any extra arguments unspecified in this help are passed to
-    `kedro jupyter notebook` command inside the container as is."""
+    `kedro jupyter notebook` command inside the container as is.
+
+    **kwargs is needed to make the global `verbose` argument work and pass it through."""
+
     container_name = make_container_name(image, "jupyter-notebook")
     _docker_run_args = compose_docker_run_args(
         required_args=[("-p", f"{port}:8888")],
@@ -306,10 +318,14 @@ def docker_jupyter_notebook(docker_args, port, image, args):
 @_make_image_option(callback=_image_callback)
 @_make_port_option()
 @_make_docker_args_option()
-def docker_jupyter_lab(docker_args, port, image, args):
+def docker_jupyter_lab(
+    docker_args, port, image, args, **kwargs
+):  # pylint: disable=unused-argument):
     """Run jupyter lab in the Docker container.
     Any extra arguments unspecified in this help are passed to
-    `kedro jupyter lab` command inside the container as is."""
+    `kedro jupyter lab` command inside the container as is.
+
+    **kwargs is needed to make the global `verbose` argument work and pass it through."""
 
     container_name = make_container_name(image, "jupyter-lab")
     _docker_run_args = compose_docker_run_args(
@@ -329,9 +345,11 @@ def docker_jupyter_lab(docker_args, port, image, args):
 @forward_command(docker_group, "cmd")
 @_make_image_option(callback=_image_callback)
 @_make_docker_args_option()
-def docker_cmd(args, docker_args, image):
+def docker_cmd(args, docker_args, image, **kwargs):  # pylint: disable=unused-argument):
     """Run arbitrary command from ARGS in the Docker container.
-    If ARGS are not specified, this will invoke `kedro run` inside the container."""
+    If ARGS are not specified, this will invoke `kedro run` inside the container.
+
+    **kwargs is needed to make the global `verbose` argument work and pass it through."""
 
     container_name = make_container_name(image, "cmd")
     _docker_run_args = compose_docker_run_args(

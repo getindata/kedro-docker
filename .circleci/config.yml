@@ -48,7 +48,7 @@ commands:
           command: |
             python -V
             pip -V
-            kedro -V
+#            kedro -V
   build:
     description: Run build
     steps:
