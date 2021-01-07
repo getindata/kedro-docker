@@ -14,7 +14,7 @@
 
 ## Bug fixes and other changes
 * Removed deprecated `get_project_context()` calls.
-* Make `kedro-docker` compatible with Kedro `0.17.0`.
+* Made `kedro-docker` compatible with Kedro `0.17.0`.
 
 ## Breaking changes to the API
 * Replaced deprecated `kedro.cli` imports with `kedro.framework.cli` (incompatible with Kedro `<0.16.0`).
