@@ -34,8 +34,9 @@ from sys import version_info
 from typing import Dict, Tuple, Union
 
 import click
-from kedro.cli import get_project_context
-from kedro.cli.utils import KedroCliError, call, forward_command
+from kedro import __version__ as kedro_version
+from kedro.framework.cli.utils import KedroCliError, call, forward_command
+from semver import VersionInfo
 
 from .helpers import (
     add_jupyter_args,
@@ -46,6 +47,8 @@ from .helpers import (
     is_port_in_use,
     make_container_name,
 )
+
+KEDRO_VERSION = VersionInfo.parse(kedro_version)
 
 NO_DOCKER_MESSAGE = """
 Cannot connect to the Docker daemon. Is the Docker daemon running?
@@ -65,7 +68,7 @@ DIVE_IMAGE = "wagoodman/dive:latest"
 
 
 def _image_callback(ctx, param, value):  # pylint: disable=unused-argument
-    image = value or str(get_project_context("project_path").name)
+    image = value or Path.cwd().name
     check_docker_image_exists(image)
     return image
 
@@ -73,8 +76,8 @@ def _image_callback(ctx, param, value):  # pylint: disable=unused-argument
 def _port_callback(ctx, param, value):  # pylint: disable=unused-argument
     if is_port_in_use(value):
         raise KedroCliError(
-            "Port {} is already in use on the host. "
-            "Please specify an alternative port number.".format(value)
+            f"Port {value} is already in use on the host. "
+            f"Please specify an alternative port number."
         )
     return value
 
@@ -146,10 +149,16 @@ def docker_group():
 )
 def docker_init(spark):
     """Initialize a Dockerfile for the project."""
-    project_path = get_project_context("project_path")
-
+    project_path = Path.cwd()
     template_path = Path(__file__).parent / "template"
-    verbose = get_project_context("verbose")
+
+    if KEDRO_VERSION.match(">=0.17.0"):
+        verbose = KedroCliError.VERBOSE_ERROR
+    else:
+        from kedro.framework.cli.cli import (  # pylint: disable=import-outside-toplevel, no-name-in-module
+            _VERBOSE as verbose,
+        )
+
     docker_file_version = "spark" if spark else "simple"
     docker_file = f"Dockerfile.{docker_file_version}"
     copy_template_files(
@@ -193,8 +202,8 @@ def docker_init(spark):
 def docker_build(ctx, uid, gid, spark, base_image, image, docker_args):
     """Build a Docker image for the project."""
     uid, gid = get_uid_gid(uid, gid)
-    project_path = get_project_context("project_path")
-    image = image or str(project_path.name)
+    project_path = Path.cwd()
+    image = image or project_path.name
 
     ctx.invoke(docker_init, spark=spark)
 
@@ -213,9 +222,8 @@ def docker_build(ctx, uid, gid, spark, base_image, image, docker_args):
 
 
 def _mount_info() -> Dict[str, Union[str, Tuple]]:
-    project_path = get_project_context("project_path")
     res = dict(
-        host_root=str(project_path),
+        host_root=str(Path.cwd()),
         container_root="/home/kedro",
         mount_volumes=DOCKER_DEFAULT_VOLUMES,
     )
@@ -225,10 +233,12 @@ def _mount_info() -> Dict[str, Union[str, Tuple]]:
 @forward_command(docker_group, "run")
 @_make_image_option(callback=_image_callback)
 @_make_docker_args_option()
-def docker_run(image, docker_args, args):
+def docker_run(image, docker_args, args, **kwargs):  # pylint: disable=unused-argument
     """Run the pipeline in the Docker container.
     Any extra arguments unspecified in this help
-    are passed to `docker run` as is."""
+    are passed to `docker run` as is.
+
+    **kwargs is needed to make the global `verbose` argument work and pass it through."""
 
     container_name = make_container_name(image, "run")
     _docker_run_args = compose_docker_run_args(
@@ -246,10 +256,15 @@ def docker_run(image, docker_args, args):
 @forward_command(docker_group, "ipython")
 @_make_image_option(callback=_image_callback)
 @_make_docker_args_option()
-def docker_ipython(image, docker_args, args):
+def docker_ipython(
+    image, docker_args, args, **kwargs
+):  # pylint: disable=unused-argument
     """Run ipython in the Docker container.
     Any extra arguments unspecified in this help are passed to
-    `kedro ipython` command inside the container as is."""
+    `kedro ipython` command inside the container as is.
+
+    **kwargs is needed to make the global `verbose` argument work and pass it through."""
+
     container_name = make_container_name(image, "ipython")
     _docker_run_args = compose_docker_run_args(
         optional_args=[("--rm", None), ("-it", None), ("--name", container_name)],
@@ -272,13 +287,18 @@ def docker_jupyter():
 @_make_image_option(callback=_image_callback)
 @_make_port_option()
 @_make_docker_args_option()
-def docker_jupyter_notebook(docker_args, port, image, args):
+def docker_jupyter_notebook(
+    docker_args, port, image, args, **kwargs
+):  # pylint: disable=unused-argument):
     """Run jupyter notebook in the Docker container.
     Any extra arguments unspecified in this help are passed to
-    `kedro jupyter notebook` command inside the container as is."""
+    `kedro jupyter notebook` command inside the container as is.
+
+    **kwargs is needed to make the global `verbose` argument work and pass it through."""
+
     container_name = make_container_name(image, "jupyter-notebook")
     _docker_run_args = compose_docker_run_args(
-        required_args=[("-p", "{}:8888".format(port))],
+        required_args=[("-p", f"{port}:8888")],
         optional_args=[("--rm", None), ("-it", None), ("--name", container_name)],
         user_args=docker_args,
         **_mount_info(),
@@ -298,14 +318,18 @@ def docker_jupyter_notebook(docker_args, port, image, args):
 @_make_image_option(callback=_image_callback)
 @_make_port_option()
 @_make_docker_args_option()
-def docker_jupyter_lab(docker_args, port, image, args):
+def docker_jupyter_lab(
+    docker_args, port, image, args, **kwargs
+):  # pylint: disable=unused-argument):
     """Run jupyter lab in the Docker container.
     Any extra arguments unspecified in this help are passed to
-    `kedro jupyter lab` command inside the container as is."""
+    `kedro jupyter lab` command inside the container as is.
+
+    **kwargs is needed to make the global `verbose` argument work and pass it through."""
 
     container_name = make_container_name(image, "jupyter-lab")
     _docker_run_args = compose_docker_run_args(
-        required_args=[("-p", "{}:8888".format(port))],
+        required_args=[("-p", f"{port}:8888")],
         optional_args=[("--rm", None), ("-it", None), ("--name", container_name)],
         user_args=docker_args,
         **_mount_info(),
@@ -321,9 +345,11 @@ def docker_jupyter_lab(docker_args, port, image, args):
 @forward_command(docker_group, "cmd")
 @_make_image_option(callback=_image_callback)
 @_make_docker_args_option()
-def docker_cmd(args, docker_args, image):
+def docker_cmd(args, docker_args, image, **kwargs):  # pylint: disable=unused-argument):
     """Run arbitrary command from ARGS in the Docker container.
-    If ARGS are not specified, this will invoke `kedro run` inside the container."""
+    If ARGS are not specified, this will invoke `kedro run` inside the container.
+
+    **kwargs is needed to make the global `verbose` argument work and pass it through."""
 
     container_name = make_container_name(image, "cmd")
     _docker_run_args = compose_docker_run_args(
@@ -365,11 +391,11 @@ def docker_dive(ci_flag, dive_ci, docker_args, image):
     if ci_flag:
         dive_ci = Path(dive_ci).absolute()
         if dive_ci.is_file():
-            required_args.append(("-v", "{}:/.dive-ci".format(str(dive_ci))))
+            required_args.append(("-v", f"{dive_ci}:/.dive-ci"))
         else:
-            msg = "`{}` file not found, using default CI config".format(str(dive_ci))
+            msg = f"`{dive_ci}` file not found, using default CI config"
             click.secho(msg, fg="yellow")
-        required_args.append(("-e", "CI={}".format(str(ci_flag).lower())))
+        required_args.append(("-e", f"CI={str(ci_flag).lower()}"))
     else:
         optional_args.append(("-it", None))
 
