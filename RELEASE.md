@@ -3,7 +3,18 @@
 ## Major features and improvements
 
 ## Bug fixes and other changes
+
+## Breaking changes to the API
+
+## Thanks for supporting contributions
+
+# Release 0.2.2
+
+## Major features and improvements
+
+## Bug fixes and other changes
 * Removed deprecated `get_project_context()` calls.
+* Made `kedro-docker` compatible with Kedro `0.17.0`.
 
 ## Breaking changes to the API
 * Replaced deprecated `kedro.cli` imports with `kedro.framework.cli` (incompatible with Kedro `<0.16.0`).
